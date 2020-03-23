@@ -1,7 +1,7 @@
 # Личный проект «YetiCave»
 
 * Студент: [Odiljon Davronov](https://up.htmlacademy.ru/php/12/user/264103).
-* Наставник: `Неизвестно`.
+* Наставник: Максим Деев.
 
 ---
 
