@@ -44,4 +44,8 @@ WHERE lot.id = 2;
 
 UPDATE lots SET name = "2020 Маска Oakley Canopy" WHERE id = 6;
 
+<<<<<<< HEAD
 SELECT * FROM bids WHERE lot_id = 1 ORDER BY dt_add ASC;
+=======
+SELECT * FROM bids WHERE lot_id = 1 ORDER BY dt_add ASC;
+>>>>>>> 59f083deb96b0b2e26dc8213e7f3b26951d7c930
