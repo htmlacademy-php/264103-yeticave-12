@@ -25,7 +25,7 @@ CREATE TABLE lots (
 CREATE TABLE bids (
     id INT AUTO_INCREMENT PRIMARY KEY UNIQUE,
     dt_add DATETIME DEFAULT CURRENT_TIMESTAMP,
-    sum INT,
+    sum INT NOT NULL,
     user_id INT NOT NULL,
     lot_id INT NOT NULL 
 );

@@ -54,11 +54,11 @@
 <footer class="main-footer">
     <nav class="nav">
         <ul class="nav__list container">
-        <?php foreach ($items as $key => $value): ?>
+        <?php foreach ($categories as $cat) : ?>
             <li class="nav__item">
-                <a href="pages/all-lots.html"><?=$value["name"];?></a>
+                <a href="pages/all-lots.html?cat_id=<?=$cat['id']; ?>"><?=$cat['name']; ?></a>
             </li>
-        <?php endforeach; ?>
+        <?php endforeach ; ?>
         </ul>
     </nav>
     <div class="main-footer__bottom container">
