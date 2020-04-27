@@ -2,15 +2,11 @@
         <h2 class="promo__title">Нужен стафф для катки?</h2>
         <p class="promo__text">На нашем интернет-аукционе ты найдёшь самое эксклюзивное сноубордическое и горнолыжное снаряжение.</p>
         <ul class="promo__list">
-            <?php
-            $index = 0;
-            $num = count($categories);
-            while ($index < $num): ?>
-                <li class="promo__item promo__item--boards">
-                    <a class="promo__link" href="pages/all-lots.html"><?php echo(htmlspecialchars($categories[$index])); ?></a>
+            <?php foreach ($categories as $cat) : ?>
+                <li class="promo__item promo__item--<?=$cat['code']; ?>">
+                    <a class="promo__link" href="pages/all-lots.html"><?php echo(htmlspecialchars($cat['name'])); ?></a>
                 </li>
-                <?php $index++; ?>
-            <?php endwhile; ?>
+            <?php endforeach; ?>
         </ul>
     </section>
     <section class="lots">

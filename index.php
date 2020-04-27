@@ -24,7 +24,7 @@ else {
     
   }
   else {
-    print("Ошибка подключения в $result_cat: " . mysqli_connect_error());
+    print("Ошибка подключения в result_cat: " . mysqli_connect_error());
   }
   $sql = 'SELECT `lots`.`name`, `lots`.`st_coast`, `lots`.`dt_add`, `lots`.`end_date`, `lots`.`link`, `category`.`name` AS categoriy_name FROM `lots` 
   INNER JOIN `categories` AS category 
@@ -42,7 +42,6 @@ else {
   }
 
 }
-
 
 
 function decorate_cost($input) {
@@ -124,8 +123,9 @@ function get_dt_range($value_date) {
 
 // print($layout);
 
+
+print(include_template('layout.php', ['user_name' => $user_name, 'title' => 'Главная', 'content' => $content, 'lots' => $lots, 'categories' => $categories]));
 print(include_template('index.php', ['content' => $content, 'categories' => $categories]));
 
-?>
 
-            
+  ?>
