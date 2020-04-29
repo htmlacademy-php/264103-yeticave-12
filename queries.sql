@@ -16,6 +16,7 @@ VALUES
 
 INSERT INTO lots (dt_add, name, st_coast, end_date, category_id, link, author_id, winner_id, description, step_bids)
 VALUES 
+
 (NOW() - INTERVAL 5 HOUR, "2014 Rossignol District Snowboard", "10999", "2020-05-07", 1, "img/lot-1.jpg", 1, 6, 'Легкая, быстрая, стабильная, отлично выстреливающая вверх', 100),
 (NOW() - INTERVAL 6 DAY, "DC Ply Mens 2016/2017 Snowboard", "15999", "2020-05-12", 1, "img/lot-2.jpg", 2, 5, 'Максимально заряженная на быстрое и агрессивное катания', 200),
 (NOW() - INTERVAL 1 HOUR, "Крепления Union Contact Pro 2015 года размер L/XL", "8000", "2020-05-11", 2, "img/lot-3.jpg", 3, 4, 'Отличная модель от известного брэнда, который специализируется на креплениях', 300),
