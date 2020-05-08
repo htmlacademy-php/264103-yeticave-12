@@ -13,12 +13,12 @@ $current_lot = "SELECT lot.id, lot.name, lot.step_bids, lot.end_date, lot.st_coa
 FROM `lots` as lot
 INNER JOIN `categories` as category
 ON lot.category_id = category.id
-WHERE lot.id = '$id_lot'";
+WHERE lot.id = $id_lot";
 
 $sql_bids = "SELECT users.name, bids.sum, bids.dt_add FROM `bids` as bids
 INNER JOIN `users` as users
 ON bids.user_id = users.id
-WHERE `lot_id` = '$id_lot'
+WHERE lot_id = $id_lot
 ORDER BY bids.dt_add DESC";
 
 $result_bids = mysqli_query($link, $sql_bids);
@@ -43,5 +43,5 @@ if ($result_lot = mysqli_query($link, $current_lot)) {
 }
 
 
-print(include_template('layout.php', ['user_name' => $user_name, 'title' => 'Карточка лота', 'categories' => $categories]));
+print(include_template('layout.php', ['user_name' => $user_name, 'title' => 'Карточка лота', 'content' => $page_content, 'categories' => $categories]));
 ?>
