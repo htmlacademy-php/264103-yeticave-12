@@ -2,6 +2,7 @@
 date_default_timezone_set("Asia/Tashkent");
 require_once('helpers.php');
 require_once('mysql_connect.php');
+require_once('functions.php');
 
 $sql_categories = "SELECT `name`, `code` FROM `categories`";
 $result_categories = mysqli_query($link, $sql_categories);
@@ -28,20 +29,20 @@ if ($result_lot = mysqli_query($link, $current_lot)) {
     if (mysqli_num_rows($result_lot)) {
         $lot = mysqli_fetch_assoc($result_lot);
 
-        $page_content = include_template("current_lot.php", [
+        $content = include_template("current_lot.php", [
             'categories' => $categories, 'lot' => $lot, 'bids' => $bids]);
     } 
     else {        
-        $page_content = include_template("error.php", [
+        $content = include_template("error.php", [
             'text_error' => '404 Страница не найдена'
         ]);
     }
    } else {
-        $page_content = include_template("error.php", [
+        $content = include_template("error.php", [
             'text_error' => "Ошибка подключения: " . mysqli_errno($link)
         ]);
 }
 
 
-print(include_template('layout.php', ['user_name' => $user_name, 'title' => 'Карточка лота', 'content' => $page_content, 'categories' => $categories]));
+print(include_template('layout.php', ['user_name' => $user_name, 'title' => 'Карточка лота', 'content' => $content, 'categories' => $categories, 'is_auth' => $is_auth]));
 ?>

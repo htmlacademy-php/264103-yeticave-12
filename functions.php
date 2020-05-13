@@ -31,4 +31,11 @@ function get_max_price_bids($prices, $st_coast)
     return $max_value;
 };
 
+function check_field($field)
+{
+    if (empty($field)) {
+        return "Это поле обязательно к заполнению";
+    }
+};
+
 ?>

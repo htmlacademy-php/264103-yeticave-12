@@ -1,10 +1,6 @@
 <?php
 require_once('functions.php');
 require_once('helpers.php');
-$current_price = get_max_price_bids($bids, $lot["st_coast"]);
-if (isset($bids)) {
-    $last_bet = (int)$bids[0]["id"];
-}
 ?>
 <section class="lot-item container">
     <h2><?= $lot['name']; ?></h2>
