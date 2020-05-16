@@ -1,11 +1,8 @@
 <?php
-date_default_timezone_set("Asia/Tashken");
-
+date_default_timezone_set('Asia/Tashken');
 require_once('helpers.php');
 require_once('mysql_connect.php');
 require_once('functions.php');
-
-$is_auth = 1;
 
 $user_name = 'Odiljon';
 
@@ -29,6 +26,6 @@ $lots = mysqli_fetch_all($result_lots, MYSQLI_ASSOC);
 $content = include_template('main.php', ['categories' => $categories, 'lots' => $lots]);
 
 
-print(include_template('layout.php', ['user_name' => $user_name, 'title' => 'Главная', 'content' => $content, 'lots' => $lots, 'categories' => $categories, 'is_auth' => $is_auth]));
+print(include_template('layout.php', ['user_name' => 'Odiljon', 'title' => 'Главная', 'content' => $content, 'lots' => $lots, 'categories' => $categories, 'is_auth' => $is_auth]));
 
   ?>
