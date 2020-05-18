@@ -1,5 +1,5 @@
 <?php
-date_default_timezone_set("Asia/Tashken");
+date_default_timezone_set('Asia/Tashken');
 require_once('mysql_connect.php');
 require_once('helpers.php');
 require_once('functions.php');
@@ -125,5 +125,5 @@ VALUES
 };
 
 
-print(include_template('layout.php', ['user_name' => $user_name, 'title' => 'Добавление лота', 'content' => $content, 'categories' => $categories, 'css_calendar' => "<link href=\"css/flatpickr.min.css\" rel=\"stylesheet\">", 'is_auth' => $is_auth]));
+print(include_template('layout.php', ['user_name' => 'Odiljon', 'title' => 'Добавление лота', 'content' => $content, 'categories' => $categories, 'css_calendar' => "<link href=\"css/flatpickr.min.css\" rel=\"stylesheet\">", 'is_auth' => $is_auth]));
 ?>

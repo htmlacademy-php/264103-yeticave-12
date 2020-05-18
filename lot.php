@@ -1,5 +1,5 @@
 <?php 
-date_default_timezone_set("Asia/Tashkent");
+date_default_timezone_set('Asia/Tashken');
 require_once('helpers.php');
 require_once('mysql_connect.php');
 require_once('functions.php');
@@ -44,5 +44,5 @@ if ($result_lot = mysqli_query($link, $current_lot)) {
 }
 
 
-print(include_template('layout.php', ['user_name' => $user_name, 'title' => 'Карточка лота', 'content' => $content, 'categories' => $categories, 'is_auth' => $is_auth]));
+print(include_template('layout.php', ['user_name' => 'Odiljon', 'title' => 'Карточка лота', 'content' => $content, 'categories' => $categories, 'is_auth' => $is_auth]));
 ?>

@@ -1,11 +1,8 @@
 <?php
-date_default_timezone_set("Asia/Tashken");
+date_default_timezone_set('Asia/Tashken');
 require_once('mysql_connect.php');
+require_once('functions.php');
 
-function get_field_value($field_name)
-{
-    return $_POST[$field_name] ?? "";
-}
 $classname_field_name = isset($errors['lot-name']) ? 'form__item--invalid' : '';
 $classname_field_category = isset($errors['category']) ? 'form__item--invalid' : '';
 $classname_field_message = isset($errors['message']) ? 'form__item--invalid' : '';

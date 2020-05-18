@@ -38,4 +38,13 @@ function check_field($field)
     }
 };
 
-?>
+$is_auth = rand(0, 1);
+
+function get_field_value($field_name)
+{
+    return $_POST[$field_name] ?? "";
+};
+
+$sql_categories = "SELECT `name`, `code`, `id` FROM `categories`";
+$result_categories = mysqli_query($link, $sql_categories);
+$categories = mysqli_fetch_all($result_categories, MYSQLI_ASSOC);
