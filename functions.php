@@ -38,13 +38,15 @@ function check_field($field)
     }
 };
 
-$is_auth = rand(0, 1);
-
-function get_field_value($field_name)
+function validation_form($data, $rules)
 {
-    return $_POST[$field_name] ?? "";
+    $errors = [];
+    foreach ($data as $key => $value) {
+        if (isset($rules[$key])) {
+            $rule = $rules[$key];
+            $errors[$key] = $rule();
+        }
+    }
+    $errors = array_filter($errors);
+    return $errors;
 };
-
-$sql_categories = "SELECT `name`, `code`, `id` FROM `categories`";
-$result_categories = mysqli_query($link, $sql_categories);
-$categories = mysqli_fetch_all($result_categories, MYSQLI_ASSOC);

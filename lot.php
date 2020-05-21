@@ -1,12 +1,6 @@
-<?php 
-date_default_timezone_set('Asia/Tashken');
+<?php
+require_once('init.php');
 require_once('helpers.php');
-require_once('mysql_connect.php');
-require_once('functions.php');
-
-$sql_categories = "SELECT `name`, `code` FROM `categories`";
-$result_categories = mysqli_query($link, $sql_categories);
-$categories = mysqli_fetch_all($result_categories, MYSQLI_ASSOC);
 
 $id_lot = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 
@@ -31,18 +25,15 @@ if ($result_lot = mysqli_query($link, $current_lot)) {
 
         $content = include_template("current_lot.php", [
             'categories' => $categories, 'lot' => $lot, 'bids' => $bids]);
-    } 
-    else {        
+    } else {
         $content = include_template("error.php", [
-            'text_error' => '404 Страница не найдена'
+            "code_error" => "404", "text_error" => "Не удалось найти страницу с лотом №-" . "<b>" . $id_lot . "</b>",
         ]);
     }
-   } else {
+} else {
         $content = include_template("error.php", [
             'text_error' => "Ошибка подключения: " . mysqli_errno($link)
         ]);
 }
 
-
-print(include_template('layout.php', ['user_name' => 'Odiljon', 'title' => 'Карточка лота', 'content' => $content, 'categories' => $categories, 'is_auth' => $is_auth]));
-?>
+print(include_template("layout.php", ["content" => $content, "user_name" => $_SESSION["user"]["name"] ?? "", "title" => "Страница лота", "categories" => $categories]));
