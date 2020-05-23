@@ -23,7 +23,7 @@ VALUES
 (NOW() - INTERVAL 3 DAY, "Куртка для сноуборда DC Mutiny Charocal", "7500", "2020-05-06", 4, "img/lot-5.jpg", 5, 2, 'Стильный силуэт подчеркнет Ваш городской образ.', 500),
 (NOW() - INTERVAL 2 DAY, "Маска Oakley Canopy", "5400", "2020-05-10", 6, "img/lot-6.jpg", 6, 1, 'Такая маска идеально подойдет опытным райдерам', 600);
 
-INSERT INTO bids (dt_add, sum, user_id, lot_id)
+INSERT INTO bids (dt_add, price, user_id, lot_id)
 VALUES 
 (NOW() - INTERVAL 1 DAY, "5600", 2, 6),
 (NOW() - INTERVAL 2 DAY, "12050", 1, 1),
@@ -32,7 +32,7 @@ VALUES
 
 SELECT name FROM categories;
 
-SELECT lot.name, lot.st_coast, lot.link, category.name as category_name, bid.sum as current_price 
+SELECT lot.name, lot.st_coast, lot.link, category.name as category_name, bid.price as current_price 
 FROM lots as lot
 INNER JOIN categories as category ON category.id = lot.category_id
 INNER JOIN bids as bid ON bid.lot_id = lot.id

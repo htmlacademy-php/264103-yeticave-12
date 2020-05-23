@@ -1,8 +1,8 @@
 <?php
-$link = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-if ($link === false) {
+$con = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+if ($con === false) {
   print("Ошибка подключения: " . mysqli_connect_error());
     exit();
 };
 
-mysqli_set_charset($link, "utf8");
+mysqli_set_charset($con, "utf8");

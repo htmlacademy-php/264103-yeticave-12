@@ -14,5 +14,5 @@ require_once "functions.php";
 
 // запрос категорий
 $sql_categories = "SELECT `name`, `code`, `id` FROM `categories`";
-$result_categories = mysqli_query($link, $sql_categories);
+$result_categories = mysqli_query($con, $sql_categories);
 $categories = mysqli_fetch_all($result_categories, MYSQLI_ASSOC);

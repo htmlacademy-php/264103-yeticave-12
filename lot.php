@@ -8,18 +8,18 @@ $current_lot = "SELECT lot.id, lot.name, lot.step_bids, lot.end_date, lot.st_coa
 FROM `lots` as lot
 INNER JOIN `categories` as category
 ON lot.category_id = category.id
-WHERE lot.id = $id_lot";
+WHERE lot.id = '$id_lot'";
 
-$sql_bids = "SELECT users.name, bids.sum, bids.dt_add FROM `bids` as bids
+$sql_bids = "SELECT users.name, bids.price, bids.dt_add FROM `bids` as bids
 INNER JOIN `users` as users
 ON bids.user_id = users.id
-WHERE lot_id = $id_lot
+WHERE `lot_id` = '$id_lot'
 ORDER BY bids.dt_add DESC";
 
-$result_bids = mysqli_query($link, $sql_bids);
+$result_bids = mysqli_query($con, $sql_bids);
 $bids = mysqli_fetch_all($result_bids, MYSQLI_ASSOC);
 
-if ($result_lot = mysqli_query($link, $current_lot)) {
+if ($result_lot = mysqli_query($con, $current_lot)) {
     if (mysqli_num_rows($result_lot)) {
         $lot = mysqli_fetch_assoc($result_lot);
 
@@ -32,8 +32,9 @@ if ($result_lot = mysqli_query($link, $current_lot)) {
     }
 } else {
         $content = include_template("error.php", [
-            'text_error' => "Ошибка подключения: " . mysqli_errno($link)
+            'text_error' => "Ошибка подключения: " . mysqli_errno($con)
         ]);
 }
 
 print(include_template("layout.php", ["content" => $content, "user_name" => $_SESSION["user"]["name"] ?? "", "title" => "Страница лота", "categories" => $categories]));
+
