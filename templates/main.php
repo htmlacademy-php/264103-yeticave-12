@@ -5,9 +5,9 @@ require_once('functions.php');
         <h2 class="promo__title">Нужен стафф для катки?</h2>
         <p class="promo__text">На нашем интернет-аукционе ты найдёшь самое эксклюзивное сноубордическое и горнолыжное снаряжение.</p>
         <ul class="promo__list">
-            <?php foreach ($categories as $cat) : ?>
-                <li class="promo__item promo__item--<?=$cat['code']; ?>">
-                    <a class="promo__link" href="pages/all-lots.html"><?=htmlspecialchars($category['name']); ?></a>
+            <?php foreach ($categories as $category) : ?>
+                <li class="promo__item promo__item--<?= htmlspecialchars($category["code"]);?>">
+                  <a class="promo__link" href="pages/all-lots.html"><?=htmlspecialchars($category["name"]);?></a>
                 </li>
             <?php endforeach; ?>
         </ul>
@@ -30,9 +30,9 @@ require_once('functions.php');
                             <span class="lot__amount">Стартовая цена</span>
                             <span class="lot__cost"><?= decorate_cost($lot["st_coast"]); ?></span>
                         </div>
-                        <?php list($hours, $minutes) = get_dt_range($lot["end_date"]); ?> 
+                        <?php list($hours, $minutes) = get_dt_range($lot["end_date"]); ?>
                         <div class="lot__timer timer <?php if ($hours < 1) : ?>timer--finishing<?php endif; ?>">
-                              <?php echo $hours . ":" . $minutes; ?>             
+                              <?= $hours . ":" . $minutes;?>
                         </div>
                     </div>
                 </div>

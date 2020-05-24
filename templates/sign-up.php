@@ -1,7 +1,7 @@
 <?php
-date_default_timezone_set('Asia/Tashken');
 require_once('functions.php');
 ?>
+
 <form class="form container <?if(!empty($errors)) : ?>form--invalid<?endif;?>" action="registration.php" method="POST" autocomplete="off">
     <h2>Регистрация нового аккаунта</h2>
     <div class="form__item <?if(!empty($errors['email'])) : ?> form__item--invalid <?endif;?>">

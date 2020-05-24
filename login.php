@@ -1,11 +1,37 @@
 <?php
-date_default_timezone_set('Asia/Tashken');
-require_once('mysql_connect.php');
+require_once('init.php');
 require_once('helpers.php');
-require_once('functions.php');
 
-$content = include_template("login.php", [
-]);
+if (isset($_SESSION['user'])) {
+    header("Location: index.php");
+    exit();
+} else if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-print(include_template("layout.php", ['content' => $content,  'page' => 'Вход', 'user_name' => 'Odiljon', 'categories' => $categories, 'is_auth' => $is_auth]));
-?>
+    $errors = [];
+
+    $rules = [
+        "email" => function () use ($con) {
+            return validate_email_field($_POST["email"], $con);
+        },
+        "password" => function ()  use ($con) {
+            return validate_password_field($_POST["password"], $_POST["email"], $con);
+        }
+    ];
+
+    $errors = validation_form($_POST, $rules);
+
+    if (empty($errors)) {
+        $result = get_data_user($con, $_POST["email"]);
+        $_SESSION["user"] = $result ? mysqli_fetch_assoc($result) : null;
+        header("Location: index.php");
+        exit();
+    } else {
+        $content = include_template("login.php", [
+            "errors" => $errors, "text_errors" => "Вы ввели неверный email/пароль",
+        ]);
+    }
+} else {
+    $content = include_template("login.php", []);
+}
+
+print(include_template("layout.php", ["content" => $content, "title" => "Авторизация на сайте", "categories" => $categories]));
