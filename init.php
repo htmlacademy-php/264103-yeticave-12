@@ -6,6 +6,7 @@ define("DB_PASSWORD", "");
 define("PATH_UPLOADS_IMAGE", "uploads/");
 define("DB_HOST", "127.0.0.1");
 define("DB_NAME", "mysql");
+define("COUNT_ITEMS", "9");
 
 date_default_timezone_set("Asia/Tashkent");
 

@@ -6,7 +6,7 @@ $sql_lots = "SELECT lot.id, lot.name, lot.st_coast, lot.link, lot.dt_add, lot.en
 INNER JOIN `categories` AS category
 ON lot.category_id = category.id
 WHERE lot.end_date > NOW()
-ORDER BY `dt_add` DESC LIMIT 6";
+ORDER BY `dt_add` DESC LIMIT " . COUNT_ITEMS;
 
 $result_lots = mysqli_query($con, $sql_lots);
 $lots = mysqli_fetch_all($result_lots, MYSQLI_ASSOC);
