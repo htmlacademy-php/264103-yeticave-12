@@ -2,39 +2,85 @@
 require_once('init.php');
 require_once('helpers.php');
 
+// получение идентификатора с помощью фильтра целое число
 $id_lot = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
-
-$current_lot = "SELECT lot.id, lot.name, lot.step_bids, lot.end_date, lot.st_coast, lot.description, lot.link, lot.dt_add, lot.end_date, category.name as category_name
-FROM `lots` as lot
-INNER JOIN `categories` as category
-ON lot.category_id = category.id
-WHERE lot.id = '$id_lot'";
-
-$sql_bids = "SELECT users.name, bids.price, bids.dt_add FROM `bids` as bids
-INNER JOIN `users` as users
-ON bids.user_id = users.id
-WHERE `lot_id` = '$id_lot'
-ORDER BY bids.dt_add DESC";
-
+// выборка информации о лоте
+$current_lot = "SELECT 
+    lot.id, 
+    lot.name, 
+    lot.step_bids, 
+    lot.end_date, 
+    lot.st_coast, 
+    lot.description, 
+    lot.link, 
+    lot.dt_add, 
+    lot.end_date, 
+    lot.author_id, 
+    lot.winner_id, 
+     category.name as category_name
+    FROM `lots` as lot
+    INNER JOIN `categories` as category
+    ON lot.category_id = category.id
+    WHERE lot.id = '$id_lot'";
+// выборка истории ставок
+$sql_bids = "SELECT 
+    users.name, 
+    bids.price, 
+    bids.dt_add,
+    users.id
+    FROM `bids` as bids
+    INNER JOIN `users` as users
+    ON bids.user_id = users.id
+    WHERE `lot_id` = '$id_lot'
+    ORDER BY bids.dt_add DESC";
 $result_bids = mysqli_query($con, $sql_bids);
 $bids = mysqli_fetch_all($result_bids, MYSQLI_ASSOC);
 
-if ($result_lot = mysqli_query($con, $current_lot)) {
-    if (mysqli_num_rows($result_lot)) {
-        $lot = mysqli_fetch_assoc($result_lot);
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_SESSION["user"])) {
+    // подготовка суммы ставки
+    $bird_sum = get_escape_string($con, $_POST["cost"]);
+    $lot = mysqli_fetch_assoc(mysqli_query($con, $current_lot));
+    // узнаем есть ли ставки по этому лоту
+    $max_value_bird = mysqli_query($con, "SELECT MAX(price) AS `max_price` FROM `bids` WHERE `lot_id` =" . $id_lot . " LIMIT 1");
+    $max_value = mysqli_fetch_assoc($max_value_bird);
+    $new_sum = get_max_price_lot($max_value["max_price"], $lot["step_rate"], $lot["st_coast"]);
 
-        $content = include_template("current_lot.php", [
-            'categories' => $categories, 'lot' => $lot, 'bids' => $bids]);
+    if ($new_sum <= $bird_sum) {
+        $content = create_bet($bird_sum, $con, $id_lot) ? header("Location: lot.php?id=" . $id_lot) : $page_content = include_template("error.php", [
+            "text_error" => "Ошибка вставки: " . mysqli_errno($con)
+        ]);
     } else {
-        $content = include_template("error.php", [
-            "code_error" => "404", "text_error" => "Не удалось найти страницу с лотом №-" . "<b>" . $id_lot . "</b>",
+        $content = include_template("current_lot.php", [
+            "categories" => $categories,
+            "lot" => $lot,
+            "bids" => $bids,
+            "bird_sum" => $bird_sum,
+            "text_error" => "Сумма ставки меньше минимальной или введено некорректное значение",
         ]);
     }
 } else {
-        $content = include_template("error.php", [
-            'text_error' => "Ошибка подключения: " . mysqli_errno($con)
+    $result_lot = mysqli_query($con, $current_lot);
+    if (mysqli_num_rows($result_lot)) {
+        $lot = mysqli_fetch_assoc($result_lot);
+        $content = include_template("current_lot.php", [
+            'categories' => $categories, 
+            'lot' => $lot, 
+            'bids' => $bids
         ]);
+    } else {
+        $content = include_template("error.php", [
+            "code_error" => "404", 
+            "text_error" => "Не удалось найти страницу с лотом №-" . "<b>" . $id_lot . "</b>",
+        ]);
+    }
 }
 
-print(include_template("layout.php", ["content" => $content, "user_name" => $_SESSION["user"]["name"] ?? "", "title" => "Страница лота", "categories" => $categories]));
+// собираем итоговую страницу лота
+$layout_content = include_template("layout.php", [
+    "content" => $content,
+    "title_page" => "Страница лота",
+    "user_name" => session_user_value("name", ""),
+    "categories" => $categories,
+]);
 
+print($layout_content);

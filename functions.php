@@ -1,18 +1,69 @@
 <?php
+/**
+ * Форматирует число и добавляет в конце знак рубля
+ * @param int $number Число для форматирования
+ *
+ * @return string Отформатированное число со знаком рубля
+ */
 function decorate_cost($number = 0)
 {
     $price = ceil($number);
     $format_price = number_format($price, 0, ",", " ");
-    return $format_price .  " ₽";
+    return $format_price . " ₽";
 };
 
-function get_dt_range($value_date) {
+/**
+ * Вычисляет оставшееся время и
+ * возвращает данные в виде часов и минут
+ * @param DateTime $value_date Дата
+ *
+ * @return array Часы и минуты
+ */
+function get_dt_range($value_date) 
+{
 	$time_difference = strtotime($value_date) - time();
 	$time_hours = floor($time_difference / 3600);
 	$time_minutes = floor(($time_difference % 3600) / 60);
 	return [$time_hours, $time_minutes];
 };
 
+/**
+ * Возвращает разница в часах и минутах
+ * между текущем временем и входящим значением
+ * @param DateTime $value_time_my
+ *
+ * @return array Часы и минуты
+ */
+function get_dt_difference($value_time_my)
+{
+    $time_difference = time() - strtotime($value_time_my);
+    $time_hours = floor($time_difference / 3600);
+    $time_minutes = floor(($time_difference % 3600) / 60);
+    return [(int)$time_hours, $time_minutes];
+}
+
+/**
+ * Возвращает булевое true в случае
+ * если входящая дата меньше текущей
+ * @param DateTime $value_date дата
+ *
+ * @return bool
+ */
+function get_dt_end($value_date)
+{
+    if (time() > strtotime($value_date)) {
+        return true;
+    }
+}
+
+/**
+ * Поиск максимальной цены или возвращние
+ * текущей цены
+ * @param array $prices Ставки с ценой
+ * @param int $price_start Стартовая цена
+ *
+ * @return mixed
+ */
 
 function get_max_price_bids($prices, $st_coast)
 {
@@ -28,6 +79,12 @@ function get_max_price_bids($prices, $st_coast)
     return $max_value;
 };
 
+/**
+ * Возвращает ошибку, если поле пустое
+ * @param string $field Поле с текстом
+ *
+ * @return string Комментарий
+ */
 function check_field($field)
 {
     if (empty($field)) {
@@ -35,11 +92,66 @@ function check_field($field)
     }
 };
 
-function get_field_value($field_name)
+/**
+ * Возвращает значение из глобального массива $_POST
+ * если оно не пустое или дефолтное значение
+ * @param string $name Имя переменной
+ * @param string|integer|null $default Дефолтное значение
+ *
+ * @return string|integer Текст
+ */
+function post_value(string $name, $default = null)
 {
-    return $_POST[$field_name] ?? "";
+    return $_POST[$name] ?? $default;
 }
 
+/**
+ * Возращает значение из глобального массива $_SESSION["user"]
+ * относящегося к массиву с данными о клиенте
+ * @param string $name Имя переменной
+ * @param string|integer|null $default Дефолтное значение
+ *
+ * @return string|null Текст
+ */
+function session_user_value(string $name, $default = null)
+{
+    return $_SESSION["user"][$name] ?? $default;
+}
+
+/**
+ * Возвращает значение из глобального массива $_GET
+ * если оно не пустое или дефолтное значение
+ * @param string $name Имя переменной
+ * @param string|integer|null $default Дефолтное значение
+ *
+ * @return mixed|null Текст
+ */
+function get_value(string $name, $default = null)
+{
+    return $_GET[$name] ?? $default;
+}
+
+/**
+ * Получает значение страницы и проверяет
+ * чтобы оно было числом, если нет то
+ * возращает страницу 1
+ *
+ * @return int Номер страницы
+ */
+function get_page_value()
+{
+   $number_page = get_value("page", 1);
+    return is_numeric($number_page) ? (int)$number_page : 1;
+}
+
+/**
+ * Обработка правил валидации для
+ * различных входных данных
+ * @param array $data Данные для валидации
+ * @param array $rules Перечень правил для валидации
+ *
+ * @return array Массив с ошибками
+ */
 
 function validation_form($data, $rules)
 {
@@ -54,93 +166,168 @@ function validation_form($data, $rules)
     return $errors;
 };
 
-
-// From add.php
- function validate_field_text($field_text, $max = NULL)
-    {
-        if($max && mb_strlen($field_text) > $max) {
-            return "Значение должно быть не более $max символов";
-        }
-        return check_field($field_text);
-    }
-
-    function validate_field_price($field_price)
-    {
-        $price = decorate_cost($field_price, 2, ".", ",");
-        if ($price <= 0) {
-            return "Введите число больше нуля";
-        }
-        
-        if(!is_numeric($field_price)) {
-            return "Можно вводить только число";
-        }
-        
-        return check_field($field_price);
-    }
-
-    function validate_field_category($field_category)
-    {
-        return check_field($field_category);
-    }
-
-    function validate_field_date($field_date)
-    {
-        $format_to_check = "Y-m-d";
-        $dateTimeObj = date_create_from_format($format_to_check, $field_date);
-        if ($dateTimeObj) {
-            $diff_in_hours = floor((strtotime($field_date) - strtotime("now")) / 3600);
-            if ($diff_in_hours <= 24) {
-                return "Дата заверешния торгов, не может быть меньше 24 часов или отрицательной";
-            }
-        }
-        return check_field($field_date);
-    }
-
-// From login.php
+/**
+ * Ищет в БД информацию о пользователе и
+ * возвращает её
+ * @param mysqli $link Ресурс соединения
+ * @param string $email_field Email адресс
+ *
+ * @return false|mysqli_result Данные о пользователе
+ */
 function get_data_user($link, $email_field)
     {
-        $email = mysqli_real_escape_string($link, $email_field);
         $sql_query_data = "SELECT * FROM `users` WHERE `email` = ? ";
-        $stmt = db_get_prepare_stmt($link, $sql_query_data, [$email]);
+        $stmt = db_get_prepare_stmt($link, $sql_query_data, [$email_field]);
         mysqli_stmt_execute($stmt);
         return mysqli_stmt_get_result($stmt);
     };
 
-    function validate_email_field($email_field, $link)
-    {
-        if (empty($email_field)) {
-            return "Это поле обязательно к заполнению";
-        }
-        $result = get_data_user($link, $email_field);
-        if (mysqli_num_rows($result) === 0) {
-            return "Нет пользователя с таким адресом";
-        }
+/**
+ * Функция создания html элемента <li> для
+ * пагинации, применяется в функции render_pagination
+ * @param string $path_button Путь url
+ * @param string $text_button Текст на кнопке
+ * @param string $class_important Дополнительный класс
+ * @param bool $disable Состояние кнопки
+ * @param null $text_search Текст для поиска (работает на поиске)
+ * @param null $current_page Текущая страница
+ *
+ * @return string
+ */
+function render_pagination_button(
+    $path_button,
+    $text_button,
+    $class_important = "",
+    $disable = false,
+    $text_search = null,
+    $current_page = null
+) {
+    if ($disable) {
+        $disable = "style='pointer-events: none;'";
     }
+    $string_template = '<li %s class="pagination-item %s"><a href="%s%s&page=%d">%s</a></li>';
+    return sprintf($string_template, $disable, $class_important, $path_button, $text_search, $current_page,
+        $text_button);
+}
 
-    function validate_password_field($password_field, $email_field, $link)
-    {
-        if(empty($password_field)) {
-            return "Это поле обязательно к заполнению";
-        }
-        $result = get_data_user($link, $email_field);
-        $user_data = $result ? mysqli_fetch_assoc($result) : null;
-        if (!password_verify($password_field, $user_data["password"])) {
-            return "Указан неверный пароль";
-        }
-    }
+/**
+ * Создание html элемента пагинации, если
+ * количество элементов больше заданного количества
+ * @param int $all_lots Количество элементов всего
+ * @param $value_items Количество элементов на странице
+ * @param int $current_page Текущая страница
+ * @param int $pages Количество страниц
+ * @param $str_search Строка с поиском
+ * @param $path_search Путь url
+ *
+ * @return bool|string HTML element
+ */
+function render_pagination($all_lots, $value_items, $current_page, $pages, $str_search, $path_search)
+{
+    if ($all_lots > $value_items) {
+        $pagination = "<ul class='pagination-list'>";
 
-// From registation.php
-function validate_field_email($email_field, $link)
-    {
-        if(filter_var($email_field, FILTER_VALIDATE_EMAIL)) {
-            $email = mysqli_real_escape_string($link, $email_field);
-            $sql_query_empty_user = "SELECT `id` FROM users WHERE `email` = ?";
-            $stmt = db_get_prepare_stmt($link, $sql_query_empty_user, [$email_field]);
-            mysqli_stmt_execute($stmt);
-            $result = mysqli_stmt_get_result($stmt);
-            if (mysqli_num_rows($result) > 0) {
-                return "Пользователь с этим email уже зарегистрирован";
+        if ($current_page === 1) {
+            $pagination .= render_pagination_button("#", "Назад", "pagination-item-prev", true);
+        } else {
+            $pagination .= render_pagination_button($path_search, "Назад", "pagination-item-prev", false, $str_search, $current_page - 1);
+        }
+
+        for ($i = 1; $i <= $pages; $i++) {
+            if ($current_page === $i) {
+                $pagination .= render_pagination_button("#", $i, "pagination-item-active", true);
+            } else {
+                $pagination .= render_pagination_button($path_search, $i, "", false, $str_search, $i);
             }
         }
-        return check_field($email_field);
-    };
+
+        if ($pages > $current_page) {
+            $pagination .= render_pagination_button($path_search, "Вперед", "pagination-item-next", false, $str_search,
+                $current_page + 1);
+        } else {
+            $pagination .= render_pagination_button("#", "Вперед", "pagination-item-next", true);
+        }
+        return $pagination . "</ul>";
+    }
+    return false;
+}
+
+/**
+ * Возвращает экранированную строку
+ * @param mysqli $connect Ресурс соединения
+ * @param string $text Текст для экранирования
+ *
+ * @return string Экранированная строка
+ */
+function get_escape_string($connect, $text)
+{
+    $str = mysqli_real_escape_string($connect, $text);
+    return $str;
+}
+
+/**
+ * Возвращает значение отступа из расчета
+ * количесвта элементов на странице
+ * @param int $page Номер страницы
+ * @param int $count_items Количество элементов на странице
+ *
+ * @return int Число
+ */
+function get_offset_items($page, $count_items)
+{
+    $offset = ($page - 1) * $count_items;
+    return abs($offset);
+}
+
+/**
+ * Обрабатывает запрос с количеством лотов и
+ * возращает данные для пагинации
+ * @param mysqli $link Ресурс соединения
+ * @param string $sql_query SQL запрос с количеством лотов
+ * @param string/int $data Данные для запроса
+ *
+ * @return array Текущая страница, количество лотов, количество страниц, отступ
+ */
+function compute_pagination_offset_and_limit($link, $sql_query, $data)
+{
+    $stmt_count = db_get_prepare_stmt($link, $sql_query, [$data]);
+    mysqli_stmt_execute($stmt_count);
+    $count_lots = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_count));
+    $count_lots = $count_lots["count"];
+    $page_count = ceil($count_lots / COUNT_ITEMS);
+    return [$count_lots, $page_count];
+}
+
+/**
+ * Вычисляет стоимость лота с учетом ставок и шагов
+ * @param integer $max_price Максимальная цена ставки
+ * @param integer $step Шаг ставки
+ * @param integer $price_start Стартовая цена лота
+ *
+ * @return integer $sum Итоговая сумма
+ */
+function get_max_price_lot($max_price, $step, $price_start)
+{
+    if ($max_price !== null) {
+        $sum = $max_price + $step;
+    } else {
+        $sum = $price_start + $step;
+    }
+    return $sum;
+}
+
+/**
+ * Записывает значение ставки в базу если оно
+ * больше текущей цены или возращает ошибку
+ * @param integer $bet_sum Сумма ставки
+ * @param mysqli $link Ресурс соединения
+ * @param integer $id_lot ID лота
+ *
+ * @return string $page_content Шаблон ошибки вставки
+ */
+function create_bet($bet_sum, $link, $id_lot)
+{
+    $sql_insert_bids = "INSERT INTO `bids` (`dt_add`, `price`, `user_id`, `lot_id`) VALUES (NOW(), ?, ?, ?)";
+    $stmt = db_get_prepare_stmt($link, $sql_insert_bids, [$bet_sum, $_SESSION["user"]["id"], $id_lot]);
+    return mysqli_stmt_execute($stmt);
+}

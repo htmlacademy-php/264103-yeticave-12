@@ -5,4 +5,5 @@ if ($con === false) {
     exit();
 };
 
+// установка кодировки
 mysqli_set_charset($con, "utf8");

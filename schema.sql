@@ -46,7 +46,7 @@ CREATE FULLTEXT INDEX search_lot ON `lots`(name, description);
 CREATE TABLE bids (
     id INT AUTO_INCREMENT PRIMARY KEY,
     dt_add TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    sum DECIMAL(16,2) UNSIGNED NOT NULL,
+    price DECIMAL(16,2) UNSIGNED NOT NULL,
     user_id INT NOT NULL,
     lot_id INT NOT NULL 
 );
