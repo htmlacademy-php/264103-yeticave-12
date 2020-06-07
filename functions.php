@@ -1,4 +1,7 @@
 <?php
+
+use Imagine\Image\Box;
+
 /**
  * Форматирует число и добавляет в конце знак рубля
  * @param int $number Число для форматирования
@@ -10,7 +13,7 @@ function decorate_cost($number = 0)
     $price = ceil($number);
     $format_price = number_format($price, 0, ",", " ");
     return $format_price . " ₽";
-};
+}
 
 /**
  * Вычисляет оставшееся время и
@@ -19,13 +22,13 @@ function decorate_cost($number = 0)
  *
  * @return array Часы и минуты
  */
-function get_dt_range($value_date) 
+function get_dt_range($value_date)
 {
-	$time_difference = strtotime($value_date) - time();
-	$time_hours = floor($time_difference / 3600);
-	$time_minutes = floor(($time_difference % 3600) / 60);
-	return [$time_hours, $time_minutes];
-};
+    $time_difference = strtotime($value_date) - time();
+    $time_hours = floor($time_difference / 3600);
+    $time_minutes = floor(($time_difference % 3600) / 60);
+    return [$time_hours, $time_minutes];
+}
 
 /**
  * Возвращает разница в часах и минутах
@@ -64,33 +67,19 @@ function get_dt_end($value_date)
  *
  * @return mixed
  */
-
-function get_max_price_bids($prices, $st_coast)
+function get_max_price_bids($prices, $price_start)
 {
-	if (!isset($prices[0]['price'])) {
-        return $st_coast;
+    if (!isset($prices[0]["price"])) {
+        return $price_start;
     }
-    $max_value = $prices[0]['price'];
+    $max_value = $prices[0]["price"];
     foreach ($prices as $price) {
-        if ($max_value < $price['price']) {
-            $max_value = $price['price'];
+        if ($max_value < $price["price"]) {
+            $max_value = $price["price"];
         }
     }
     return $max_value;
-};
-
-/**
- * Возвращает ошибку, если поле пустое
- * @param string $field Поле с текстом
- *
- * @return string Комментарий
- */
-function check_field($field)
-{
-    if (empty($field)) {
-        return "Это поле обязательно к заполнению";
-    }
-};
+}
 
 /**
  * Возвращает значение из глобального массива $_POST
@@ -103,6 +92,19 @@ function check_field($field)
 function post_value(string $name, $default = null)
 {
     return $_POST[$name] ?? $default;
+}
+
+/**
+ * Возвращает объект из глобального массива $_FILES
+ * если оно не пустое или дефолтное значение
+ * @param string $name Имя переменной
+ * @param null $default Дефолтное значение
+ *
+ * @return string|null Текст
+ */
+function get_file(string $name, $default = null)
+{
+    return $_FILES[$name] ?? $default;
 }
 
 /**
@@ -140,31 +142,9 @@ function get_value(string $name, $default = null)
  */
 function get_page_value()
 {
-   $number_page = get_value("page", 1);
+    $number_page = get_value("page", 1);
     return is_numeric($number_page) ? (int)$number_page : 1;
 }
-
-/**
- * Обработка правил валидации для
- * различных входных данных
- * @param array $data Данные для валидации
- * @param array $rules Перечень правил для валидации
- *
- * @return array Массив с ошибками
- */
-
-function validation_form($data, $rules)
-{
-    $errors = [];
-    foreach ($data as $key => $value) {
-        if (isset($rules[$key])) {
-            $rule = $rules[$key];
-            $errors[$key] = $rule();
-        }
-    }
-    $errors = array_filter($errors);
-    return $errors;
-};
 
 /**
  * Ищет в БД информацию о пользователе и
@@ -175,12 +155,12 @@ function validation_form($data, $rules)
  * @return false|mysqli_result Данные о пользователе
  */
 function get_data_user($link, $email_field)
-    {
-        $sql_query_data = "SELECT * FROM `users` WHERE `email` = ? ";
-        $stmt = db_get_prepare_stmt($link, $sql_query_data, [$email_field]);
-        mysqli_stmt_execute($stmt);
-        return mysqli_stmt_get_result($stmt);
-    };
+{
+    $sql_query_data = "SELECT * FROM `users` WHERE `email` = ? ";
+    $stmt = db_get_prepare_stmt($link, $sql_query_data, [$email_field]);
+    mysqli_stmt_execute($stmt);
+    return mysqli_stmt_get_result($stmt);
+}
 
 /**
  * Функция создания html элемента <li> для
@@ -206,8 +186,7 @@ function render_pagination_button(
         $disable = "style='pointer-events: none;'";
     }
     $string_template = '<li %s class="pagination-item %s"><a href="%s%s&page=%d">%s</a></li>';
-    return sprintf($string_template, $disable, $class_important, $path_button, $text_search, $current_page,
-        $text_button);
+    return sprintf($string_template, $disable, $class_important, $path_button, $text_search, $current_page, $text_button);
 }
 
 /**
@@ -242,8 +221,7 @@ function render_pagination($all_lots, $value_items, $current_page, $pages, $str_
         }
 
         if ($pages > $current_page) {
-            $pagination .= render_pagination_button($path_search, "Вперед", "pagination-item-next", false, $str_search,
-                $current_page + 1);
+            $pagination .= render_pagination_button($path_search, "Вперед", "pagination-item-next", false, $str_search, $current_page + 1);
         } else {
             $pagination .= render_pagination_button("#", "Вперед", "pagination-item-next", true);
         }
@@ -314,6 +292,44 @@ function get_max_price_lot($max_price, $step, $price_start)
         $sum = $price_start + $step;
     }
     return $sum;
+}
+
+/**
+ * Обработка фотографии (изменения размера и
+ * добавление знака нашей площадки внизу изображения)
+ * @param string $file_name Имя файла
+ */
+function resize_and_watermark_image_of_lot($file_name) {
+    /**
+     * Обрезаем картинку лота
+     */
+    $imagine = new Imagine\Gd\Imagine();
+    $img = $imagine->open(PATH_UPLOADS_IMAGE . $file_name);
+    $img->resize(new Box(IMAGE_PARAMETERS["width"], IMAGE_PARAMETERS["height"]));
+    /**
+     * Добавляем watermark
+     */
+    $watermark = $imagine->open('img/logo.png');
+    $size = $img->getSize();
+    $wSize = $watermark->getSize();
+    $bottomRight = new Imagine\Image\Point($size->getWidth() - $wSize->getWidth(), $size->getHeight() - $wSize->getHeight());
+    $img->paste($watermark, $bottomRight);
+    /**
+     * Сохранение изображения
+     */
+    $img->save(PATH_UPLOADS_IMAGE . $file_name, IMAGE_QUALITY);
+}
+
+/**
+ * Функция перемещает файл в папку,
+ * указананя в атрибуте $folder
+ * @param int $id_image Уникальный номер
+ * @param array $file Файл
+ * @param string $folder Имя папки
+ */
+function move_file_to_folder($id_image, $file, $folder) {
+    $file_name = $id_image . $file["name"];
+    move_uploaded_file($file["tmp_name"], $folder . $file_name);
 }
 
 /**

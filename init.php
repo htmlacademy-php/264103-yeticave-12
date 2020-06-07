@@ -14,6 +14,14 @@ define("MAIL", [
     "username" => "913ac37e38ecd8",
     "password" => "64542b20aea49b",
 ]);
+define("IMAGE_PARAMETERS", [
+   "width" => 800,
+    "height" => 600,
+]);
+define("IMAGE_QUALITY", [
+    "jpeg_quality" => 60,
+    "png_compression_level" => 7,
+]);
 
 date_default_timezone_set("Asia/Tashkent");
 

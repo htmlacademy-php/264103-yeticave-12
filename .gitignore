@@ -7,5 +7,6 @@
 *.sublime*
 Thumbs.db
 vendor
+created_at
 uploads/*
 !uploads/.gitkeep
