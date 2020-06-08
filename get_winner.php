@@ -1,13 +1,15 @@
 <?php
 require_once('init.php');
+require_once('vendor/autoload.php');
 require_once('helpers.php');
+
 $lots_info = mysqli_query($con, "SELECT 
     `id`,
     `author_id`,
     `name` 
     FROM `lots` AS lots 
-    WHERE lots.ends_at <= NOW() 
-    AND lots.user_winner_id = 0");
+    WHERE lots.end_date <= NOW() 
+    AND lots.winner_id = 0");
 
 for ($i = 1; $i <= mysqli_num_rows($lots_info); $i++) {
     $lot = mysqli_fetch_assoc($lots_info);
@@ -33,6 +35,7 @@ for ($i = 1; $i <= mysqli_num_rows($lots_info); $i++) {
             "user" => $user_info,
             "lot_id" => $current_lot,
             "lot_name" => $lot_name,
+            "host_project" => $_SERVER["HTTP_HOST"],
         ]);
         $message->setBody($msg_content, 'text/html');
         // Отправка сообщения

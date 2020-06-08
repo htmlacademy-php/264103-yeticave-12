@@ -9,7 +9,7 @@ if (isset($_GET["category"]) && $_GET["category"] !== "") {
             COUNT(`lots`.`id`) AS 'count'
         FROM `lots`
         JOIN `categories` ON `categories`.`id` = `lots`.`category_id`
-        WHERE `ends_at` > NOW() 
+        WHERE `end_date` > NOW() 
         AND `categories`.`code` = ?",
         $_GET["category"]
     );

@@ -1,0 +1,17 @@
+{
+    "name": "developer/yeticave",
+    "description": "onile au",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Odiljon Davronov",
+            "email": "taxiuni1@gmail.com"
+        }
+    ],
+    "require": {
+        "swiftmailer/swiftmailer": "^6.2",
+        "imagine/imagine": "^1.2",
+        "ext-gd": "^7.3",
+        "ext-mysqli": "^7.3"
+    }
+}
