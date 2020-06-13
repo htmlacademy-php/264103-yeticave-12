@@ -1,15 +1,15 @@
 <?php
-require_once('init.php');
-require_once('helpers.php');
+require_once "init.php";
+require_once "helpers.php";
+require_once "validate_functions.php";
 
 // получение идентификатора с помощью фильтра целое число
-$id_lot = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+$lot_id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 // выборка информации о лоте
 $current_lot = "SELECT 
     lot.id, 
     lot.name, 
     lot.step_bids, 
-    lot.end_date, 
     lot.st_coast, 
     lot.description, 
     lot.link, 
@@ -17,60 +17,93 @@ $current_lot = "SELECT
     lot.end_date, 
     lot.author_id, 
     lot.winner_id, 
-     category.name as category_name
-    FROM `lots` as lot
-    INNER JOIN `categories` as category
+     category.name AS category_name
+    FROM `lots` AS lot
+    INNER JOIN `categories` AS category
     ON lot.category_id = category.id
-    WHERE lot.id = '$id_lot'";
+    WHERE lot.id = '$lot_id'";
 // выборка истории ставок
 $sql_bids = "SELECT 
     users.name, 
     bids.price, 
     bids.dt_add,
     users.id
-    FROM `bids` as bids
-    INNER JOIN `users` as users
+    FROM `bids` AS bids
+    INNER JOIN `users` AS users
     ON bids.user_id = users.id
-    WHERE `lot_id` = '$id_lot'
+    WHERE `lot_id` = '$lot_id'
     ORDER BY bids.dt_add DESC";
 $result_bids = mysqli_query($con, $sql_bids);
 $bids = mysqli_fetch_all($result_bids, MYSQLI_ASSOC);
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_SESSION["user"])) {
     // подготовка суммы ставки
-    $bird_sum = get_escape_string($con, $_POST["cost"]);
+    $bet_sum = get_escape_string($con, post_value("cost"));
     $lot = mysqli_fetch_assoc(mysqli_query($con, $current_lot));
     // узнаем есть ли ставки по этому лоту
-    $max_value_bird = mysqli_query($con, "SELECT MAX(price) AS `max_price` FROM `bids` WHERE `lot_id` =" . $id_lot . " LIMIT 1");
+    $max_value_bird = mysqli_query(
+        $con, 
+        "SELECT MAX(price) AS `max_price` FROM `bids` WHERE `lot_id` =" . $lot_id . " LIMIT 1"
+    );
     $max_value = mysqli_fetch_assoc($max_value_bird);
-    $new_sum = get_max_price_lot($max_value["max_price"], $lot["step_rate"], $lot["st_coast"]);
+    $new_sum = get_max_price_lot($max_value["max_price"], $lot["step_bids"], $lot["st_coast"]);
 
-    if ($new_sum <= $bird_sum) {
-        $content = create_bet($bird_sum, $con, $id_lot) ? header("Location: lot.php?id=" . $id_lot) : $page_content = include_template("error.php", [
-            "text_error" => "Ошибка вставки: " . mysqli_errno($con)
+    $errors = validate(
+        [
+            "cost" => post_value("cost"),
+        ],
+        [
+            "cost" => [
+                not_empty("Укажите сумму больше или равной минимальной"),
+                str_length_gt(12),
+            ],
+        ]
+    );
+
+    if ($new_sum <= $bet_sum && empty($errors)) {
+        $content = create_bet($bet_sum, $con, $lot_id) ?
+            header("Location: lot.php?id=" . $lot_id) :
+            $content = include_template("error.php", [
+            "code_error" => "404",
+            "text_error" => "Ошибка вставки: " . mysqli_errno($con),
+        ]);
+    } elseif ($errors) {
+        $content = include_template("current_lot.php", [
+            "categories" => $categories,
+            "lot" => $lot,
+            "bids" => $bids,
+            "bet_sum" => $bet_sum,
+            "text_error" => $errors["cost"],
+            "current_price" => get_max_price_bids($bids, $lot["st_coast"]),
+            "user_id" => get_value_from_user_session("id"),
         ]);
     } else {
         $content = include_template("current_lot.php", [
             "categories" => $categories,
             "lot" => $lot,
             "bids" => $bids,
-            "bird_sum" => $bird_sum,
+            "bet_sum" => $bet_sum,
             "text_error" => "Сумма ставки меньше минимальной или введено некорректное значение",
+            "current_price" => get_max_price_bids($bids, $lot["st_coast"]),
+            "user_id" => get_value_from_user_session("id"),
         ]);
     }
 } else {
     $result_lot = mysqli_query($con, $current_lot);
+    get_error($con);
     if (mysqli_num_rows($result_lot)) {
         $lot = mysqli_fetch_assoc($result_lot);
         $content = include_template("current_lot.php", [
             'categories' => $categories, 
             'lot' => $lot, 
-            'bids' => $bids
+            'bids' => $bids,
+            "current_price" => get_max_price_bids($bids, $lot["st_coast"]),
+            "user_id" => get_value_from_user_session("id"),
         ]);
     } else {
         $content = include_template("error.php", [
             "code_error" => "404", 
-            "text_error" => "Не удалось найти страницу с лотом №-" . "<b>" . $id_lot . "</b>",
+            "text_error" => "Не удалось найти страницу с лотом №- <b> $lot_id </b>",
         ]);
     }
 }
@@ -79,7 +112,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_SESSION["user"])) {
 $layout_content = include_template("layout.php", [
     "content" => $content,
     "title_page" => "Страница лота",
-    "user_name" => session_user_value("name", ""),
+    "user_name" => get_value_from_user_session("name"),
     "categories" => $categories,
 ]);
 

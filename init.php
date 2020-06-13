@@ -1,6 +1,8 @@
 <?php
 session_start();
-
+ini_set("error_reporting", E_ALL);
+ini_set("display_errors", 1);
+ini_set("display_startup_errors", 1);
 define("DB_USER", "root");
 define("DB_PASSWORD", "");
 define("PATH_UPLOADS_IMAGE", "uploads/");
@@ -16,7 +18,7 @@ define("MAIL", [
 ]);
 define("IMAGE_PARAMETERS", [
    "width" => 800,
-    "height" => 600,
+   "height" => 600,
 ]);
 define("IMAGE_QUALITY", [
     "jpeg_quality" => 60,
@@ -25,8 +27,8 @@ define("IMAGE_QUALITY", [
 
 date_default_timezone_set("Asia/Tashkent");
 
-require_once('mysql_connect.php');
-require_once('functions.php');
+require_once "mysql_connect.php";
+require_once "functions.php";
 
 // запрос категорий
 $sql_categories = "SELECT `name`, `code`, `id` FROM `categories`";

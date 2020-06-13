@@ -8,11 +8,10 @@ use Imagine\Image\Box;
  *
  * @return string Отформатированное число со знаком рубля
  */
-function decorate_cost($number = 0)
+function decorate_cost(int $number = 0)
 {
     $price = ceil($number);
-    $format_price = number_format($price, 0, ",", " ");
-    return $format_price . " ₽";
+    return number_format($price, 0, ",", " ") . " ₽";
 }
 
 /**
@@ -25,9 +24,7 @@ function decorate_cost($number = 0)
 function get_dt_range($value_date)
 {
     $time_difference = strtotime($value_date) - time();
-    $time_hours = floor($time_difference / 3600);
-    $time_minutes = floor(($time_difference % 3600) / 60);
-    return [$time_hours, $time_minutes];
+    return [floor($time_difference / 3600), floor(($time_difference % 3600) / 60)];
 }
 
 /**
@@ -40,9 +37,7 @@ function get_dt_range($value_date)
 function get_dt_difference($value_time_my)
 {
     $time_difference = time() - strtotime($value_time_my);
-    $time_hours = floor($time_difference / 3600);
-    $time_minutes = floor(($time_difference % 3600) / 60);
-    return [(int)$time_hours, $time_minutes];
+    return [floor($time_difference / 3600), floor(($time_difference % 3600) / 60)];
 }
 
 /**
@@ -63,14 +58,14 @@ function get_dt_end($value_date)
  * Поиск максимальной цены или возвращние
  * текущей цены
  * @param array $prices Ставки с ценой
- * @param int $price_start Стартовая цена
+ * @param int $st_coast Стартовая цена
  *
  * @return mixed
  */
-function get_max_price_bids($prices, $price_start)
+function get_max_price_bids(array $prices, int $st_coast)
 {
     if (!isset($prices[0]["price"])) {
-        return $price_start;
+        return $st_coast;
     }
     $max_value = $prices[0]["price"];
     foreach ($prices as $price) {
@@ -91,7 +86,7 @@ function get_max_price_bids($prices, $price_start)
  */
 function post_value(string $name, $default = null)
 {
-    return $_POST[$name] ?? $default;
+    return isset($_POST[$name]) ? trim($_POST[$name]) : $default;
 }
 
 /**
@@ -115,7 +110,7 @@ function get_file(string $name, $default = null)
  *
  * @return string|null Текст
  */
-function session_user_value(string $name, $default = null)
+function get_value_from_user_session(string $name, $default = null)
 {
     return $_SESSION["user"][$name] ?? $default;
 }
@@ -130,7 +125,7 @@ function session_user_value(string $name, $default = null)
  */
 function get_value(string $name, $default = null)
 {
-    return $_GET[$name] ?? $default;
+    return isset($_GET[$name]) ? trim($_GET[$name]) : $default;
 }
 
 /**
@@ -186,7 +181,15 @@ function render_pagination_button(
         $disable = "style='pointer-events: none;'";
     }
     $string_template = '<li %s class="pagination-item %s"><a href="%s%s&page=%d">%s</a></li>';
-    return sprintf($string_template, $disable, $class_important, $path_button, $text_search, $current_page, $text_button);
+    return sprintf(
+        $string_template, 
+        $disable, 
+        $class_important, 
+        $path_button, 
+        $text_search, 
+        $current_page, 
+        $text_button
+    );
 }
 
 /**
@@ -209,7 +212,14 @@ function render_pagination($all_lots, $value_items, $current_page, $pages, $str_
         if ($current_page === 1) {
             $pagination .= render_pagination_button("#", "Назад", "pagination-item-prev", true);
         } else {
-            $pagination .= render_pagination_button($path_search, "Назад", "pagination-item-prev", false, $str_search, $current_page - 1);
+            $pagination .= render_pagination_button(
+                $path_search, 
+                "Назад", 
+                "pagination-item-prev", 
+                false, 
+                $str_search, 
+                $current_page - 1
+            );
         }
 
         for ($i = 1; $i <= $pages; $i++) {
@@ -221,7 +231,13 @@ function render_pagination($all_lots, $value_items, $current_page, $pages, $str_
         }
 
         if ($pages > $current_page) {
-            $pagination .= render_pagination_button($path_search, "Вперед", "pagination-item-next", false, $str_search, $current_page + 1);
+            $pagination .= render_pagination_button(
+                $path_search, 
+                "Вперед", 
+                "pagination-item-next", 
+                false, 
+                $str_search, 
+                $current_page + 1);
         } else {
             $pagination .= render_pagination_button("#", "Вперед", "pagination-item-next", true);
         }
@@ -239,8 +255,7 @@ function render_pagination($all_lots, $value_items, $current_page, $pages, $str_
  */
 function get_escape_string($connect, $text)
 {
-    $str = mysqli_real_escape_string($connect, $text);
-    return $str;
+    return mysqli_real_escape_string($connect, $text);
 }
 
 /**
@@ -251,10 +266,9 @@ function get_escape_string($connect, $text)
  *
  * @return int Число
  */
-function get_offset_items($page, $count_items)
+function get_offset_items(int $page, int $count_items)
 {
-    $offset = ($page - 1) * $count_items;
-    return abs($offset);
+    return ($page - 1) * $count_items;
 }
 
 /**
@@ -266,7 +280,7 @@ function get_offset_items($page, $count_items)
  *
  * @return array Текущая страница, количество лотов, количество страниц, отступ
  */
-function compute_pagination_offset_and_limit($link, $sql_query, $data)
+function compute_pagination_offset_and_limit($link, string $sql_query, $data)
 {
     $stmt_count = db_get_prepare_stmt($link, $sql_query, [$data]);
     mysqli_stmt_execute($stmt_count);
@@ -280,16 +294,16 @@ function compute_pagination_offset_and_limit($link, $sql_query, $data)
  * Вычисляет стоимость лота с учетом ставок и шагов
  * @param integer $max_price Максимальная цена ставки
  * @param integer $step Шаг ставки
- * @param integer $price_start Стартовая цена лота
+ * @param integer $st_coast Стартовая цена лота
  *
  * @return integer $sum Итоговая сумма
  */
-function get_max_price_lot($max_price, $step, $price_start)
+function get_max_price_lot($max_price, $step, $st_coast)
 {
     if ($max_price !== null) {
         $sum = $max_price + $step;
     } else {
-        $sum = $price_start + $step;
+        $sum = $st_coast + $step;
     }
     return $sum;
 }
@@ -299,7 +313,8 @@ function get_max_price_lot($max_price, $step, $price_start)
  * добавление знака нашей площадки внизу изображения)
  * @param string $file_name Имя файла
  */
-function resize_and_watermark_image_of_lot($file_name) {
+function resize_and_watermark_image_of_lot($file_name) 
+{
     /**
      * Обрезаем картинку лота
      */
@@ -312,7 +327,10 @@ function resize_and_watermark_image_of_lot($file_name) {
     $watermark = $imagine->open('img/logo.png');
     $size = $img->getSize();
     $wSize = $watermark->getSize();
-    $bottomRight = new Imagine\Image\Point($size->getWidth() - $wSize->getWidth(), $size->getHeight() - $wSize->getHeight());
+    $bottomRight = new Imagine\Image\Point(
+        $size->getWidth() - $wSize->getWidth(),
+        $size->getHeight() - $wSize->getHeight()
+    );
     $img->paste($watermark, $bottomRight);
     /**
      * Сохранение изображения
@@ -327,7 +345,8 @@ function resize_and_watermark_image_of_lot($file_name) {
  * @param array $file Файл
  * @param string $folder Имя папки
  */
-function move_file_to_folder($id_image, $file, $folder) {
+function move_file_to_folder($id_image, $file, $folder) 
+{
     $file_name = $id_image . $file["name"];
     move_uploaded_file($file["tmp_name"], $folder . $file_name);
 }
@@ -341,9 +360,21 @@ function move_file_to_folder($id_image, $file, $folder) {
  *
  * @return string $page_content Шаблон ошибки вставки
  */
-function create_bet($bet_sum, $link, $id_lot)
+function create_bet(int $bet_sum, $link, int $id_lot)
 {
     $sql_insert_bids = "INSERT INTO `bids` (`dt_add`, `price`, `user_id`, `lot_id`) VALUES (NOW(), ?, ?, ?)";
     $stmt = db_get_prepare_stmt($link, $sql_insert_bids, [$bet_sum, $_SESSION["user"]["id"], $id_lot]);
     return mysqli_stmt_execute($stmt);
+}
+
+/** Если обнаружены ошибки то
+ * останавливает работу приложения
+ * @param mysqli $link Ресурс соединения
+ */
+function get_error($link)
+{
+    if (!empty(mysqli_error($link))) {
+        echo "Получена ошибка " . mysqli_error($link);
+        die();
+    }
 }

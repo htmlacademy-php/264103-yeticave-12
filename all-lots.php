@@ -1,8 +1,8 @@
 <?php
-require_once('init.php');
-require_once('helpers.php');
-
-if (isset($_GET["category"]) && $_GET["category"] !== "") {
+require_once "init.php";
+require_once "helpers.php";
+$current_category = get_escape_string($con, get_value("category"));
+if (!empty($current_category)) {
     list($count_lots, $page_count) = compute_pagination_offset_and_limit(
         $con,
         "SELECT 
@@ -11,11 +11,15 @@ if (isset($_GET["category"]) && $_GET["category"] !== "") {
         JOIN `categories` ON `categories`.`id` = `lots`.`category_id`
         WHERE `end_date` > NOW() 
         AND `categories`.`code` = ?",
-        $_GET["category"]
+        $current_category
     );
     $current_page = get_page_value();
     $offset = get_offset_items($current_page, COUNT_ITEMS);
-    $current_category = get_escape_string($con, $_GET["category"]);
+    $current_category_name = mysqli_fetch_assoc(mysqli_query($con, "SELECT 
+        `name` 
+    FROM `categories` 
+    WHERE `code` = '".$current_category."'"));
+
     $sql_query_lots_category = "SELECT
         lots.id, 
         lots.link, 
@@ -23,20 +27,28 @@ if (isset($_GET["category"]) && $_GET["category"] !== "") {
         categories.name AS category, 
         categories.code, 
         lots.end_date, 
-        (SELECT IF (MAX(bids.sum) = NULL, MAX(bids.sum), lots.st_coast)  FROM `bids` AS bids WHERE bids.lot_id = lots.id) AS price,
-        (SELECT COUNT(id) FROM `bids` AS bids WHERE bids.lot_id = lots.id) AS count_bets
-    FROM `lots` AS lots
-    JOIN `categories` AS categories
+        IFNULL(bids.price, lots.st_coast) AS price,
+        IFNULL(bids.count_bets, 0) AS count_bets
+    FROM `lots`
+    JOIN `categories`
     ON lots.category_id = categories.id
-    WHERE lots.end_date > NOW() 
-    AND categories.code = '" . $current_category . "' ORDER BY lots.dt_add DESC LIMIT " . COUNT_ITEMS . " OFFSET " . $offset;
+    LEFT JOIN (SELECT MAX(price) AS price, count(id) AS count_bets, lot_id
+        FROM `bids`
+        GROUP BY lot_id) AS bids
+    ON bids.lot_id = lots.id
+    WHERE lots.end_date > NOW()
+    AND categories.code = '" . $current_category . "'
+    ORDER BY lots.dt_add DESC 
+    LIMIT " . COUNT_ITEMS . " OFFSET " . $offset;
     $lots_result = mysqli_query($con, $sql_query_lots_category);
+    get_error($con);
     $lots = mysqli_fetch_all($lots_result, MYSQLI_ASSOC);
-    $page_content = include_template("lots.php", [
+    $content = include_template("lots.php", [
         "categories" => $categories,
         "lots" => $lots,
-        "current_category" => $current_category ?? "",
+        "current_category_code" => $current_category ?? "",
         "count_lots" => $count_lots,
+        "current_category_name" => $current_category_name["name"]  ?? $current_category,
         "page_count" => $page_count,
         "current_page" => $current_page,
     ]);
@@ -53,7 +65,7 @@ if (isset($_GET["category"]) && $_GET["category"] !== "") {
 $layout_content = include_template("layout.php", [
     "content" => $content,
     "title_page" => "Страница лота",
-    "user_name" => session_user_value("name", ""),
+    "user_name" => get_value_from_user_session("name"),
     "categories" => $categories,
 ]);
 

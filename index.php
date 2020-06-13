@@ -1,7 +1,7 @@
 <?php
-require_once('init.php');
-require_once('helpers.php');
-require_once('get_winner.php');
+require_once "init.php";
+require_once "helpers.php";
+require_once "get_winner.php";
 
 $sql_lots = "SELECT 
     lot.id, 
@@ -11,24 +11,24 @@ $sql_lots = "SELECT
     lot.dt_add, 
     lot.end_date, 
     category.name AS category_name 
-    FROM `lots` as lot
-    INNER JOIN `categories` as category
+    FROM `lots` AS lot
+    INNER JOIN `categories` AS category
     ON lot.category_id = category.id
     WHERE lot.end_date > NOW()
    ORDER BY `dt_add` DESC LIMIT " . COUNT_ITEMS;
 $result_lots = mysqli_query($con, $sql_lots);
+get_error($con);
 $lots = mysqli_fetch_all($result_lots, MYSQLI_ASSOC);
 
 $content = include_template("main.php", [
     "categories" => $categories,
-    "lots" => $lots
+    "lots" => $lots ?? [],
 ]);
-
 
 $layout_content = include_template("layout.php", [
     "content" => $content,
     "title_page" => "Главная страница",
-    "user_name" => session_user_value("name", ""),
+    "user_name" => get_value_from_user_session("name"),
     "categories" => $categories,
 ]);
 

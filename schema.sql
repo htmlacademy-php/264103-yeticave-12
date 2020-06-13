@@ -1,8 +1,7 @@
 -- Создали БД
-CREATE DATABASE scheme
-  DEFAULT CHARACTER SET utf8
-  DEFAULT COLLATE utf8_general_ci;
+CREATE DATABASE `mysql` DEFAULT CHARACTER SET `utf8mb4`;
 
+-- Выбор БД;
 USE `mysql`;
 
 -- Создание таблицы с пользователями
@@ -33,7 +32,7 @@ CREATE TABLE lots (
 	end_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	step_bids DECIMAL(16,2) UNSIGNED NOT NULL,
 	author_id INT NOT NULL,
-	winner_id INT NOT NULL,
+	winner_id INT,
 	category_id INT NOT NULL
 );
 
@@ -53,8 +52,3 @@ CREATE TABLE bids (
 
 -- Создал составной индекс для поиска по автору и сумме
 CREATE INDEX user_price ON bids(user_id, price);
-
-CREATE INDEX in_cat ON categories(code, name);
-CREATE INDEX in_lots ON lots(name, dt_add, category_id);
-CREATE INDEX in_bids ON bids(dt_add, user_id, sum);
-CREATE INDEX in_users ON users(email, id, name);
