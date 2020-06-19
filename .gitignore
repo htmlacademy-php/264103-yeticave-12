@@ -10,3 +10,6 @@ vendor
 created_at
 uploads/*
 !uploads/.gitkeep
+composer
+composer.phar
+composer.bat

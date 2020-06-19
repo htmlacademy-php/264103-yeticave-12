@@ -1,7 +1,7 @@
 <?php
-require_once('init.php');
-require_once('helpers.php');
-require_once('validate_functions.php');
+require_once "init.php";
+require_once "helpers.php";
+require_once "validate_functions.php";
 
 if (isset($_SESSION["user"])) {
     http_response_code(403);
@@ -26,18 +26,20 @@ if (isset($_SESSION["user"])) {
         ],
         [
             "email" => [
-                not_empty(),
+                not_empty("Введите электронный адресс"),
                 checking_correct_email(),
-                db_exists("users", "email", "Пользователь с этим email уже зарегистрирован", $con)
+                db_exists("users", "email", "Пользователь с этим email уже зарегистрирован", $con),
+                str_length_gt(254),
             ],
             "password" => [
-                not_empty(),
+                not_empty("Введите пароль"),
             ],
             "name" => [
-                not_empty(),
+                not_empty("Укажите Ваше ФИО"),
+                str_length_gt(128),
             ],
             "message" => [
-                not_empty(),
+                not_empty("Напишите как с вами связаться"),
             ],
         ]
     );
@@ -57,9 +59,8 @@ if (isset($_SESSION["user"])) {
         if ($result) {
             header("location: login.php");
             exit();
-        } else {
-            echo "Ошибка вставки " . mysqli_error($con);
-        }
+        } 
+        echo "Ошибка вставки " . mysqli_error($con);
     } else {
         $content = include_template("sign-up.php", [
             "errors" => $errors,
@@ -72,7 +73,7 @@ if (isset($_SESSION["user"])) {
 $layout_content = include_template("layout.php", [
     "content" => $content,
     "title_page" => "Страница регистрации",
-    "user_name" => session_user_value("name", ""),
+    "user_name" => get_value_from_user_session("name"),
     "categories" => $categories,
 ]);
 
