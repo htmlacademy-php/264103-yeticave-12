@@ -2,7 +2,6 @@
 require_once "helpers.php";
 require_once "functions.php";
 ?>
-
 <?php if (isset($error_bets)) : ?>
     <section class="rates container">
         <h2><?= $error_bets; ?></h2>
