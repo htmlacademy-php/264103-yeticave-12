@@ -21,22 +21,15 @@ function decorate_cost(int $number = 0)
  *
  * @return array Часы и минуты
  */
-function get_dt_range($value_date)
-{
-    $time_difference = strtotime($value_date) - time();
-    return [floor($time_difference / 3600), floor(($time_difference % 3600) / 60)];
-}
+function get_dt_range($value_date, $reverse = false)
+{   
+    if ($reverse) {
+        $time_difference = strtotime($value_date) - time();
+    }
 
-/**
- * Возвращает разница в часах и минутах
- * между текущем временем и входящим значением
- * @param DateTime $value_time_my
- *
- * @return array Часы и минуты
- */
-function get_dt_difference($value_time_my)
-{
-    $time_difference = time() - strtotime($value_time_my);
+    else {
+       $time_difference = time() - strtotime($value_date);
+    }
     return [floor($time_difference / 3600), floor(($time_difference % 3600) / 60)];
 }
 

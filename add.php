@@ -45,7 +45,7 @@ if (!isset($_SESSION["user"])) {
                 not_empty("Цена должна быть больше 0"),
                 it_is_number(),
                 check_price_greater_than_zero(),
-                str_length_gt(19),
+                str_length_gt(9),
             ],
             "category" => [
                 not_empty("Укажите категорию лота"),
@@ -54,7 +54,7 @@ if (!isset($_SESSION["user"])) {
                 not_empty("Цена должна быть больше 0"),
                 it_is_number(),
                 check_price_greater_than_zero(),
-                str_length_gt(19),
+                str_length_gt(9),
             ],
             "lot-date" => [
                 not_empty("Введите дату окончания дейтсвия лота"),
@@ -96,7 +96,9 @@ if (!isset($_SESSION["user"])) {
         ]);
         
         $result = mysqli_stmt_execute($stmt);
-
+ 
+        $content = "";
+        
         if ($result) {
             $last_id = mysqli_insert_id($con);
             header("Location: lot.php?id=$last_id");

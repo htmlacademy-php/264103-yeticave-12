@@ -9,7 +9,7 @@ $last_bet = (!empty($bids)) ? (int)$bids[0]["id"] : 0;
     <div class="lot-item__content">
         <div class="lot-item__left">
             <div class="lot-item__image">
-                <img src="<?= htmlspecialchars(["link"], ENT_QUOTES); ?>" width="730" height="548" alt="Сноуборд">
+                <img src="<?= htmlspecialchars($lot["link"], ENT_QUOTES); ?>" width="730" height="548" alt="<?= htmlspecialchars($lot["category_name"]); ?>">
             </div>
             <p class="lot-item__category">Категория: <span><?=  htmlspecialchars($lot["category_name"], ENT_QUOTES); ?></span></p>
             <p class="lot-item__description">
@@ -25,6 +25,7 @@ $last_bet = (!empty($bids)) ? (int)$bids[0]["id"] : 0;
                     ?>
                     <div class="lot-item__timer timer <?= ($hours < 1) ? 'timer--finishing' : ''; ?>">
                         <?= "$hours : $minutes"; ?>
+                    </div>
                     <div class="lot-item__cost-state">
                         <div class="lot-item__rate">
                             <span class="lot-item__amount">Текущая цена</span>
@@ -55,7 +56,7 @@ $last_bet = (!empty($bids)) ? (int)$bids[0]["id"] : 0;
                         <tr class="history__item">
                             <td class="history__name"><?= htmlspecialchars($bid["name"], ENT_QUOTES); ?></td>
                             <td class="history__price"><?= htmlspecialchars(decorate_cost($bid["price"]), ENT_QUOTES); ?></td>
-                            <?php list($hours, $minutes) = get_dt_difference($bid["dt_add"]); ?>
+                            <?php list($hours, $minutes) = get_dt_range($bid["dt_add"]); ?>
                             <?php if ($hours === 0) : ?>
                                 <td class="history__time"><?= $minutes . " " . get_noun_plural_form($minutes, 'минута', 'минуты', 'минут') . " назад"; ?></td>
                             <?php else : ?>
