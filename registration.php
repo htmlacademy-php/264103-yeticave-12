@@ -36,7 +36,7 @@ if (isset($_SESSION["user"])) {
             ],
             "name" => [
                 not_empty("Укажите Ваше ФИО"),
-                str_length_gt(128),
+                str_length_gt(254),
             ],
             "message" => [
                 not_empty("Напишите как с вами связаться"),

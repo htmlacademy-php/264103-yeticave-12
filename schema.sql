@@ -32,7 +32,7 @@ CREATE TABLE lots (
 	end_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	step_bids DECIMAL(16,2) UNSIGNED NOT NULL,
 	author_id INT NOT NULL,
-	winner_id INT,
+	winner_id INT NULL,
 	category_id INT NOT NULL
 );
 

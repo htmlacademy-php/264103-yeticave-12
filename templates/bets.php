@@ -48,7 +48,7 @@ require_once "functions.php";
                         <td class="rates__price">
                             <?= htmlspecialchars(decorate_cost($bet["price"]), ENT_QUOTES); ?>
                         </td>
-                        <?php list($hours, $minutes) = get_dt_difference($bet["dt_add"]); ?>
+                        <?php list($hours, $minutes) = get_dt_range($bet["dt_add"]); ?>
 
                         <td class="rates__time">
                             <?php if ($hours < 1) : ?>

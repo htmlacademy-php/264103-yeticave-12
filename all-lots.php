@@ -1,7 +1,9 @@
 <?php
 require_once "init.php";
 require_once "helpers.php";
+
 $current_category = get_escape_string($con, get_value("category"));
+
 if (!empty($current_category)) {
     list($count_lots, $page_count) = compute_pagination_offset_and_limit(
         $con,
